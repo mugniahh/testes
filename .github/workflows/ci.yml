@@ -1,0 +1,32 @@
+name: CI Laravel/PHP Composer
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'  # Ganti sesuai versi PHP kamu
+        extensions: mbstring, xml
+        coverage: none
+
+    - name: Check PHP Version
+      run: php -v
+
+    - name: Install Dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Run PHPUnit Tests
+      run: vendor/phpunit/phpunit
