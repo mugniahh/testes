@@ -33,7 +33,7 @@ jobs:
     - name: Run PHPUnit Tests
       run: |
         if [ -f vendor/phpunit/phpunit/phpunit ]; then
-          vendor/phpunit/phpunit/phpunit --configuration phpunit.xml
+          vendor/phpunit/phpunit/phpunit --configuration phpunit.php
         else
           echo "No PHPUnit tests found."
         fi
