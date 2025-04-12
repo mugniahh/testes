@@ -32,11 +32,12 @@ jobs:
     # Run PHPUnit Tests with phpunit.xml configuration
     - name: Run PHPUnit Tests
       run: |
-        if [ -f vendor/phpunit/phpunit/phpunit ]; then
+          if [ -f vendor/phpunit/phpunit/phpunit ]; then
           vendor/phpunit/phpunit/phpunit --configuration phpunit.xml
-        else
+          else
           echo "No PHPUnit tests found."
-        fi
+          fi
+
 
     # Deployment step (example for cPanel deployment)
     - name: Deploy to cPanel
