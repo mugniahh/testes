@@ -16,23 +16,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Set up PHP
+    # Set up PHP with version 8.1 (update PHP to 8.1 as recommended)
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.0'
-        
+        php-version: '8.1'  # Disarankan untuk PHP 8.1 atau lebih baru
+
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    # Run tests (if any tests are configured)
-    - name: Run tests
+    # Run tests (if PHPUnit or other tests are configured)
+    - name: Run PHPUnit Tests
       run: |
-        # Add test commands if applicable (e.g., PHPUnit)
-        echo "Running tests..."
+        if [ -f vendor/bin/phpunit ]; then
+          vendor/bin/phpunit --configuration phpunit.xml
+        else
+          echo "No PHPUnit tests found."
+        fi
 
-    # Deployment step (if applicable)
-    - name: Deploy
+    # Deployment step (example for cPanel deployment)
+    - name: Deploy to cPanel
       run: |
-        # Add your deployment commands here (e.g., to Heroku, AWS, or your server)
+        # Use FTP or SSH to deploy to cPanel server, or add your deployment command here
         echo "Deploying to server..."
