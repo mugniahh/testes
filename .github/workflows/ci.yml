@@ -21,11 +21,9 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.0'
-
-    # Install dependencies using Composer
-    - name: Install dependencies
-      run: |
-        composer install
+        
+    - name: Install Dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
     # Run tests (if any tests are configured)
     - name: Run tests
