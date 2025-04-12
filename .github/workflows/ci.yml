@@ -1,27 +1,46 @@
-name: CI/CD Pipeline
+name: PHP CI/CD Pipeline
+
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
         with:
-          python-version: '3.x'
-      - name: Install dependencies
+          php-version: '7.4'  # Sesuaikan dengan versi PHP yang Anda gunakan
+
+      - name: Install Composer dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run tests
+          composer install --no-interaction
+
+      - name: Run PHP tests (jika ada)
         run: |
-          python -m unittest discover
-      - name: Deploy
-        if: success()
+          # Jika Anda memiliki unit tests, jalankan dengan perintah ini:
+          vendor/bin/phpunit
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'  # Deploy hanya jika commit ada di branch 'main'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Server
         run: |
-          echo "Deploying application..."
-          # Deployment command, like ssh or AWS CLI command
+          echo "Deploying to server"
+          # Tambahkan langkah deployment sesuai dengan kebutuhan Anda (misalnya, menggunakan SSH)
+          # ssh user@server "deploy script"
