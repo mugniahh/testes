@@ -25,11 +25,11 @@ jobs:
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    # Run tests (if PHPUnit or other tests are configured)
+    # Run tests using the custom PHPUnit path
     - name: Run PHPUnit Tests
       run: |
-        if [ -f vendor/bin/phpunit ]; then
-          vendor/bin/phpunit --configuration phpunit.xml
+        if [ -f vendor/phpunit/phpunit/phpunit ]; then
+          vendor/phpunit/phpunit/phpunit --configuration phpunit.xml
         else
           echo "No PHPUnit tests found."
         fi
