@@ -40,7 +40,12 @@ jobs:
 
 
     # Deployment step (example for cPanel deployment)
-    - name: Deploy to cPanel
-      run: |
-        # Use FTP or SSH to deploy to cPanel server, or add your deployment command here
-        echo "Deploying to server..."
+    - name: Deploy to cPanel via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.CPANEL_FTP_SERVER }}
+        username: ${{ secrets.CPANEL_FTP_USERNAME }}
+        password: ${{ secrets.CPANEL_FTP_PASSWORD }}
+        protocol: ftp
+        port: 21
+        server-dir: /public_html/yourprojectfolder/
