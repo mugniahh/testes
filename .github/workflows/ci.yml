@@ -48,4 +48,4 @@ jobs:
         password: ${{ secrets.CPANEL_FTP_PASSWORD }}
         protocol: ftp
         port: 21
-        server-dir: /public_html/yourprojectfolder/
+        server-dir: /public_html/testescloud/
