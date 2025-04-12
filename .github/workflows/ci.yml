@@ -25,15 +25,15 @@ jobs:
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    # Give execute permission to PHPUnit
+    # Give execute permission to PHPUnit (if needed)
     - name: Give PHPUnit execute permission
       run: chmod +x vendor/phpunit/phpunit/phpunit
 
-    # Run tests using the custom PHPUnit path
+    # Run PHPUnit Tests with phpunit.xml configuration
     - name: Run PHPUnit Tests
       run: |
         if [ -f vendor/phpunit/phpunit/phpunit ]; then
-          vendor/phpunit/phpunit/phpunit --configuration phpunit.php
+          vendor/phpunit/phpunit/phpunit --configuration phpunit.xml
         else
           echo "No PHPUnit tests found."
         fi
