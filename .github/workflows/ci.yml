@@ -27,7 +27,7 @@ jobs:
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
     - name: Give PHPUnit execute permission
-      run: chmod +x vendor/phpunit/phpunit/phpunit
+      run: chmod +x vendor\phpunit\phpunit\phpunit
 
     - name: Run PHPUnit Tests
-      run: vendor/phpunit/phpunit/phpunit
+      run: vendor\phpunit\phpunit\phpunit
