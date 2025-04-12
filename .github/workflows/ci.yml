@@ -2,13 +2,14 @@ name: CI Laravel/PHP Composer
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,11 +23,11 @@ jobs:
         extensions: mbstring, xml
         coverage: none
 
-    - name: Check PHP Version
-      run: php -v
-
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Give PHPUnit execute permission
+      run: chmod +x vendor/phpunit/phpunit/phpunit
 
     - name: Run PHPUnit Tests
       run: vendor/phpunit/phpunit/phpunit
