@@ -37,15 +37,3 @@ jobs:
           else
           echo "No PHPUnit tests found."
           fi
-
-
-    # Deployment step (example for cPanel deployment)
-    - name: Deploy to cPanel via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ${{ secrets.CPANEL_FTP_SERVER }}
-        username: ${{ secrets.CPANEL_FTP_USERNAME }}
-        password: ${{ secrets.CPANEL_FTP_PASSWORD }}
-        protocol: ftp
-        port: 21
-        server-dir: /public_html/testescloud/
