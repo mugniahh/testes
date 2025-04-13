@@ -13,8 +13,6 @@ use function sprintf;
 use RuntimeException;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class UnsupportedPhptSectionException extends RuntimeException implements Exception
@@ -24,8 +22,8 @@ final class UnsupportedPhptSectionException extends RuntimeException implements 
         parent::__construct(
             sprintf(
                 'PHPUnit does not support PHPT %s sections',
-                $section,
-            ),
+                $section
+            )
         );
     }
 }

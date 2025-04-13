@@ -15,8 +15,6 @@ use DOMElement;
 use PHPUnit\Runner\Version;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class UpdateSchemaLocation implements Migration
@@ -30,7 +28,7 @@ final class UpdateSchemaLocation implements Migration
         $root->setAttributeNS(
             'http://www.w3.org/2001/XMLSchema-instance',
             'xsi:noNamespaceSchemaLocation',
-            'https://schema.phpunit.de/' . Version::series() . '/phpunit.xsd',
+            'https://schema.phpunit.de/' . Version::series() . '/phpunit.xsd'
         );
     }
 }

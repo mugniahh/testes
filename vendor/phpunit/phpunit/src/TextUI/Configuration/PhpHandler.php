@@ -20,8 +20,6 @@ use function ini_set;
 use function putenv;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class PhpHandler
@@ -54,7 +52,7 @@ final class PhpHandler
                 'include_path',
                 implode(PATH_SEPARATOR, $includePathsAsStrings) .
                 PATH_SEPARATOR .
-                ini_get('include_path'),
+                ini_get('include_path')
             );
         }
     }

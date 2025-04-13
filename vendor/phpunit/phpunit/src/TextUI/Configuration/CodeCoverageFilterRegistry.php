@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\TextUI\Configuration;
 
-use function array_keys;
 use function assert;
 use SebastianBergmann\CodeCoverage\Filter;
 
@@ -17,62 +16,63 @@ use SebastianBergmann\CodeCoverage\Filter;
  * CLI options and XML configuration are static within a single PHPUnit process.
  * It is therefore okay to use a Singleton registry here.
  *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class CodeCoverageFilterRegistry
 {
-    private static ?self $instance = null;
-    private ?Filter $filter        = null;
-    private bool $configured       = false;
+    private static ?Filter $filter  = null;
+    private static bool $configured = false;
 
-    public static function instance(): self
+    public static function get(): Filter
     {
-        if (self::$instance === null) {
-            self::$instance = new self;
-        }
+        assert(self::$filter !== null);
 
-        return self::$instance;
+        return self::$filter;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
-    public function get(): Filter
+    public static function init(Configuration $configuration): void
     {
-        assert($this->filter !== null);
-
-        return $this->filter;
-    }
-
-    /**
-     * @codeCoverageIgnore
-     */
-    public function init(Configuration $configuration, bool $force = false): void
-    {
-        if (!$configuration->hasCoverageReport() && !$force) {
+        if (!$configuration->hasCoverageReport()) {
             return;
         }
 
-        if ($this->configured && !$force) {
+        if (self::$configured) {
             return;
         }
 
-        $this->filter = new Filter;
+        self::$filter = new Filter;
 
-        if ($configuration->source()->notEmpty()) {
-            $this->filter->includeFiles(array_keys((new SourceMapper)->map($configuration->source())));
+        if ($configuration->hasNonEmptyListOfFilesToBeIncludedInCodeCoverageReport()) {
+            foreach ($configuration->coverageIncludeDirectories() as $directory) {
+                self::$filter->includeDirectory(
+                    $directory->path(),
+                    $directory->suffix(),
+                    $directory->prefix()
+                );
+            }
 
-            $this->configured = true;
+            foreach ($configuration->coverageIncludeFiles() as $file) {
+                self::$filter->includeFile($file->path());
+            }
+
+            foreach ($configuration->coverageExcludeDirectories() as $directory) {
+                self::$filter->excludeDirectory(
+                    $directory->path(),
+                    $directory->suffix(),
+                    $directory->prefix()
+                );
+            }
+
+            foreach ($configuration->coverageExcludeFiles() as $file) {
+                self::$filter->excludeFile($file->path());
+            }
+
+            self::$configured = true;
         }
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
-    public function configured(): bool
+    public static function configured(): bool
     {
-        return $this->configured;
+        return self::$configured;
     }
 }

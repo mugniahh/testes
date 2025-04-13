@@ -33,15 +33,12 @@ use PHPUnit\Metadata\RequiresSetting;
 use PHPUnit\Runner\Version;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Requirements
 {
     /**
      * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
      *
      * @psalm-return list<string>
      */
@@ -56,7 +53,7 @@ final class Requirements
                 if (!$metadata->versionRequirement()->isSatisfiedBy(PHP_VERSION)) {
                     $notSatisfied[] = sprintf(
                         'PHP %s is required.',
-                        $metadata->versionRequirement()->asString(),
+                        $metadata->versionRequirement()->asString()
                     );
                 }
             }
@@ -70,7 +67,7 @@ final class Requirements
                     $notSatisfied[] = sprintf(
                         'PHP extension %s%s is required.',
                         $metadata->extension(),
-                        $metadata->hasVersionRequirement() ? (' ' . $metadata->versionRequirement()->asString()) : '',
+                        $metadata->hasVersionRequirement() ? (' ' . $metadata->versionRequirement()->asString()) : ''
                     );
                 }
             }
@@ -81,7 +78,7 @@ final class Requirements
                 if (!$metadata->versionRequirement()->isSatisfiedBy(Version::id())) {
                     $notSatisfied[] = sprintf(
                         'PHPUnit %s is required.',
-                        $metadata->versionRequirement()->asString(),
+                        $metadata->versionRequirement()->asString()
                     );
                 }
             }
@@ -92,7 +89,7 @@ final class Requirements
                 if ($metadata->operatingSystemFamily() !== PHP_OS_FAMILY) {
                     $notSatisfied[] = sprintf(
                         'Operating system %s is required.',
-                        $metadata->operatingSystemFamily(),
+                        $metadata->operatingSystemFamily()
                     );
                 }
             }
@@ -102,13 +99,13 @@ final class Requirements
 
                 $pattern = sprintf(
                     '/%s/i',
-                    addcslashes($metadata->operatingSystem(), '/'),
+                    addcslashes($metadata->operatingSystem(), '/')
                 );
 
                 if (!preg_match($pattern, PHP_OS)) {
                     $notSatisfied[] = sprintf(
                         'Operating system %s is required.',
-                        $metadata->operatingSystem(),
+                        $metadata->operatingSystem()
                     );
                 }
             }
@@ -119,7 +116,7 @@ final class Requirements
                 if (!function_exists($metadata->functionName())) {
                     $notSatisfied[] = sprintf(
                         'Function %s() is required.',
-                        $metadata->functionName(),
+                        $metadata->functionName()
                     );
                 }
             }
@@ -131,7 +128,7 @@ final class Requirements
                     $notSatisfied[] = sprintf(
                         'Method %s::%s() is required.',
                         $metadata->className(),
-                        $metadata->methodName(),
+                        $metadata->methodName()
                     );
                 }
             }
@@ -143,7 +140,7 @@ final class Requirements
                     $notSatisfied[] = sprintf(
                         'Setting "%s" is required to be "%s".',
                         $metadata->setting(),
-                        $metadata->value(),
+                        $metadata->value()
                     );
                 }
             }

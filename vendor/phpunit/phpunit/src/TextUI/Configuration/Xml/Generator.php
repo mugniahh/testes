@@ -12,8 +12,6 @@ namespace PHPUnit\TextUI\XmlConfiguration;
 use function str_replace;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Generator
@@ -31,8 +29,6 @@ final class Generator
          requireCoverageMetadata="true"
          beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
-         displayDetailsOnPhpunitDeprecations="true"
-         failOnPhpunitDeprecation="true"
          failOnRisky="true"
          failOnWarning="true">
     <testsuites>
@@ -41,11 +37,11 @@ final class Generator
         </testsuite>
     </testsuites>
 
-    <source restrictDeprecations="true" restrictNotices="true" restrictWarnings="true">
+    <coverage>
         <include>
-            <directory>{src_directory}</directory>
+            <directory suffix=".php">{src_directory}</directory>
         </include>
-    </source>
+    </coverage>
 </phpunit>
 
 EOT;
@@ -67,7 +63,7 @@ EOT;
                 $srcDirectory,
                 $cacheDirectory,
             ],
-            self::TEMPLATE,
+            self::TEMPLATE
         );
     }
 }

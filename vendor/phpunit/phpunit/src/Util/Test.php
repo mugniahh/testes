@@ -14,8 +14,6 @@ use PHPUnit\Metadata\Parser\Registry;
 use ReflectionMethod;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Test
@@ -32,7 +30,7 @@ final class Test
 
         $metadata = Registry::parser()->forMethod(
             $method->getDeclaringClass()->getName(),
-            $method->getName(),
+            $method->getName()
         );
 
         return $metadata->isTest()->isNotEmpty();

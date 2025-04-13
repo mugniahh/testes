@@ -1,33 +1,31 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use App\SpreadsheetService;
 
-class GoogleSheetsServiceTest extends TestCase {
+class SpreadsheetServiceTest extends TestCase
+{
+    public function testInsertRowReturnsTrue()
+    {
+        // Step 1: Buat mock untuk Google_Service_Sheets_Resource_SpreadsheetsValues
+        $mockValues = $this->createMock(\Google_Service_Sheets_Resource_SpreadsheetsValues::class);
 
-    public function testGetSpreadsheetData() {
-        // Membuat mock untuk Google Sheets API Client
-        $mockClient = $this->createMock(Google_Service_Sheets::class);
-        $mockSheets = $this->createMock(Google_Service_Sheets_SpreadsheetValues::class);
+        // Step 2: Atur return value
+        $mockValues->method('append')->willReturn(true); // Atau response dummy
 
-        // Membuat data yang akan dikembalikan oleh mock
-        $mockSheets->method('getValues')->willReturn([
-            ['A1', 'B1'],
-            ['A2', 'B2']
-        ]);
+        // Step 3: Buat mock untuk Google_Service_Sheets dan inject mock values ke dalamnya
+        $mockService = $this->getMockBuilder(\Google_Service_Sheets::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
 
-        // Mengatur agar mock client mengembalikan mockSheets saat dipanggil
-        $mockClient->spreadsheets->values = $mockSheets;
+        // Inject manual properti $spreadsheets
+        $mockService->spreadsheets_values = $mockValues;
 
-        // Menginstansiasi service dengan client yang dimock
-        $googleSheetsService = new GoogleSheetsService($mockClient);
+        // Step 4: Buat service kamu dan test
+        $service = new SpreadsheetService($mockService);
+        $result = $service->insertRow(['Nama' => 'Aldo']);
 
-        // Menguji apakah data yang diambil sesuai dengan yang di-mock
-        $result = $googleSheetsService->getSpreadsheetData('some_spreadsheet_id');
-        
-        // Memastikan hasil yang dikembalikan sesuai dengan mock
-        $this->assertEquals([
-            ['A1', 'B1'],
-            ['A2', 'B2']
-        ], $result);
+        $this->assertTrue($result);
     }
 }

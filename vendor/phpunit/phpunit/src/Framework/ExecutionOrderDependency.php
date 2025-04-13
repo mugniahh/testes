@@ -20,8 +20,6 @@ use PHPUnit\Metadata\DependsOnMethod;
 use Stringable;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class ExecutionOrderDependency implements Stringable
@@ -37,7 +35,7 @@ final class ExecutionOrderDependency implements Stringable
             '',
             '',
             false,
-            false,
+            false
         );
     }
 
@@ -47,7 +45,7 @@ final class ExecutionOrderDependency implements Stringable
             $metadata->className(),
             'class',
             $metadata->deepClone(),
-            $metadata->shallowClone(),
+            $metadata->shallowClone()
         );
     }
 
@@ -57,7 +55,7 @@ final class ExecutionOrderDependency implements Stringable
             $metadata->className(),
             $metadata->methodName(),
             $metadata->deepClone(),
-            $metadata->shallowClone(),
+            $metadata->shallowClone()
         );
     }
 
@@ -71,8 +69,8 @@ final class ExecutionOrderDependency implements Stringable
         return array_values(
             array_filter(
                 $dependencies,
-                static fn (self $d) => $d->isValid(),
-            ),
+                static fn (self $d) => $d->isValid()
+            )
         );
     }
 
@@ -86,17 +84,15 @@ final class ExecutionOrderDependency implements Stringable
     {
         $existingTargets = array_map(
             static fn ($dependency) => $dependency->getTarget(),
-            $existing,
+            $existing
         );
 
         foreach ($additional as $dependency) {
-            $additionalTarget = $dependency->getTarget();
-
-            if (in_array($additionalTarget, $existingTargets, true)) {
+            if (in_array($dependency->getTarget(), $existingTargets, true)) {
                 continue;
             }
 
-            $existingTargets[] = $additionalTarget;
+            $existingTargets[] = $dependency->getTarget();
             $existing[]        = $dependency;
         }
 
@@ -122,7 +118,7 @@ final class ExecutionOrderDependency implements Stringable
         $diff         = [];
         $rightTargets = array_map(
             static fn ($dependency) => $dependency->getTarget(),
-            $right,
+            $right
         );
 
         foreach ($left as $dependency) {
@@ -138,9 +134,6 @@ final class ExecutionOrderDependency implements Stringable
 
     public function __construct(string $classOrCallableName, ?string $methodName = null, bool $deepClone = false, bool $shallowClone = false)
     {
-        $this->deepClone    = $deepClone;
-        $this->shallowClone = $shallowClone;
-
         if ($classOrCallableName === '') {
             return;
         }
@@ -151,6 +144,9 @@ final class ExecutionOrderDependency implements Stringable
             $this->className  = $classOrCallableName;
             $this->methodName = !empty($methodName) ? $methodName : 'class';
         }
+
+        $this->deepClone    = $deepClone;
+        $this->shallowClone = $shallowClone;
     }
 
     public function __toString(): string

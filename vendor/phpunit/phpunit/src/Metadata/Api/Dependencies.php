@@ -16,15 +16,12 @@ use PHPUnit\Metadata\DependsOnMethod;
 use PHPUnit\Metadata\Parser\Registry;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Dependencies
 {
     /**
      * @psalm-param class-string $className
-     * @psalm-param non-empty-string $methodName
      *
      * @psalm-return list<ExecutionOrderDependency>
      */
@@ -37,19 +34,17 @@ final class Dependencies
                 assert($metadata instanceof DependsOnClass);
 
                 $dependencies[] = ExecutionOrderDependency::forClass($metadata);
-
-                continue;
             }
 
-            assert($metadata instanceof DependsOnMethod);
+            if ($metadata->isDependsOnMethod()) {
+                assert($metadata instanceof DependsOnMethod);
 
-            if (empty($metadata->methodName())) {
-                $dependencies[] = ExecutionOrderDependency::invalid();
-
-                continue;
+                if (empty($metadata->methodName())) {
+                    $dependencies[] = ExecutionOrderDependency::invalid();
+                } else {
+                    $dependencies[] = ExecutionOrderDependency::forMethod($metadata);
+                }
             }
-
-            $dependencies[] = ExecutionOrderDependency::forMethod($metadata);
         }
 
         return $dependencies;

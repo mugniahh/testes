@@ -9,15 +9,12 @@
  */
 namespace PHPUnit\Metadata\Api;
 
-use const JSON_ERROR_NONE;
-use const PREG_OFFSET_CAPTURE;
 use function array_key_exists;
+use function array_merge;
 use function assert;
 use function explode;
-use function get_debug_type;
 use function is_array;
 use function is_int;
-use function is_string;
 use function json_decode;
 use function json_last_error;
 use function json_last_error_msg;
@@ -36,16 +33,15 @@ use PHPUnit\Event\TestData\TestDataCollection;
 use PHPUnit\Framework\InvalidDataProviderException;
 use PHPUnit\Metadata\DataProvider as DataProviderMetadata;
 use PHPUnit\Metadata\MetadataCollection;
-use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
+use PHPUnit\Metadata\Parser\Registry;
 use PHPUnit\Metadata\TestWith;
 use PHPUnit\Util\Reflection;
 use ReflectionClass;
 use ReflectionMethod;
 use Throwable;
+use Traversable;
 
 /**
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class DataProvider
@@ -58,8 +54,8 @@ final class DataProvider
      */
     public function providedData(string $className, string $methodName): ?array
     {
-        $dataProvider = MetadataRegistry::parser()->forMethod($className, $methodName)->isDataProvider();
-        $testWith     = MetadataRegistry::parser()->forMethod($className, $methodName)->isTestWith();
+        $dataProvider = Registry::parser()->forMethod($className, $methodName)->isDataProvider();
+        $testWith     = Registry::parser()->forMethod($className, $methodName)->isTestWith();
 
         if ($dataProvider->isEmpty() && $testWith->isEmpty()) {
             return $this->dataProvidedByTestWithAnnotation($className, $methodName);
@@ -73,7 +69,7 @@ final class DataProvider
 
         if ($data === []) {
             throw new InvalidDataProviderException(
-                'Empty data set provided by data provider',
+                'Empty data set provided by data provider'
             );
         }
 
@@ -82,8 +78,8 @@ final class DataProvider
                 throw new InvalidDataProviderException(
                     sprintf(
                         'Data set %s is invalid',
-                        is_int($key) ? '#' . $key : '"' . $key . '"',
-                    ),
+                        is_int($key) ? '#' . $key : '"' . $key . '"'
+                    )
                 );
             }
         }
@@ -99,21 +95,10 @@ final class DataProvider
      */
     private function dataProvidedByMethods(string $className, string $methodName, MetadataCollection $dataProvider): array
     {
-        $testMethod    = new Event\Code\ClassMethod($className, $methodName);
-        $methodsCalled = [];
-        $result        = [];
+        $result = [];
 
         foreach ($dataProvider as $_dataProvider) {
             assert($_dataProvider instanceof DataProviderMetadata);
-
-            $dataProviderMethod = new Event\Code\ClassMethod($_dataProvider->className(), $_dataProvider->methodName());
-
-            Event\Facade::emitter()->dataProviderMethodCalled(
-                $testMethod,
-                $dataProviderMethod,
-            );
-
-            $methodsCalled[] = $dataProviderMethod;
 
             try {
                 $class  = new ReflectionClass($_dataProvider->className());
@@ -129,8 +114,8 @@ final class DataProvider
                         sprintf(
                             'Data Provider method %s::%s() is not public',
                             $_dataProvider->className(),
-                            $_dataProvider->methodName(),
-                        ),
+                            $_dataProvider->methodName()
+                        )
                     );
                 }
 
@@ -143,8 +128,8 @@ final class DataProvider
                         sprintf(
                             'Data Provider method %s::%s() is not static',
                             $_dataProvider->className(),
-                            $_dataProvider->methodName(),
-                        ),
+                            $_dataProvider->methodName()
+                        )
                     );
 
                     $object = $class->newInstanceWithoutConstructor();
@@ -161,59 +146,44 @@ final class DataProvider
                         sprintf(
                             'Data Provider method %s::%s() expects an argument',
                             $_dataProvider->className(),
-                            $_dataProvider->methodName(),
-                        ),
+                            $_dataProvider->methodName()
+                        )
                     );
 
                     $data = $method->invoke($object, $_dataProvider->methodName());
                 }
             } catch (Throwable $e) {
-                Event\Facade::emitter()->dataProviderMethodFinished(
-                    $testMethod,
-                    ...$methodsCalled,
-                );
-
                 throw new InvalidDataProviderException(
                     $e->getMessage(),
                     $e->getCode(),
-                    $e,
+                    $e
                 );
             }
 
-            foreach ($data as $key => $value) {
-                if (is_int($key)) {
-                    $result[] = $value;
-                } elseif (is_string($key)) {
-                    if (array_key_exists($key, $result)) {
-                        Event\Facade::emitter()->dataProviderMethodFinished(
-                            $testMethod,
-                            ...$methodsCalled,
-                        );
+            if ($data instanceof Traversable) {
+                $origData = $data;
+                $data     = [];
 
+                foreach ($origData as $key => $value) {
+                    if (is_int($key)) {
+                        $data[] = $value;
+                    } elseif (array_key_exists($key, $data)) {
                         throw new InvalidDataProviderException(
                             sprintf(
                                 'The key "%s" has already been defined by a previous data provider',
                                 $key,
-                            ),
+                            )
                         );
+                    } else {
+                        $data[$key] = $value;
                     }
-
-                    $result[$key] = $value;
-                } else {
-                    throw new InvalidDataProviderException(
-                        sprintf(
-                            'The key must be an integer or a string, %s given',
-                            get_debug_type($key),
-                        ),
-                    );
                 }
             }
-        }
 
-        Event\Facade::emitter()->dataProviderMethodFinished(
-            $testMethod,
-            ...$methodsCalled,
-        );
+            if (is_array($data)) {
+                $result = array_merge($result, $data);
+            }
+        }
 
         return $result;
     }
@@ -240,12 +210,12 @@ final class DataProvider
     {
         $docComment = (new ReflectionMethod($className, $methodName))->getDocComment();
 
-        if ($docComment === false) {
+        if (!$docComment) {
             return null;
         }
 
         $docComment = str_replace("\r\n", "\n", $docComment);
-        $docComment = preg_replace('/\n\s*\*\s?/', "\n", $docComment);
+        $docComment = preg_replace('/' . '\n' . '\s*' . '\*' . '\s?' . '/', "\n", $docComment);
         $docComment = substr($docComment, 0, -1);
         $docComment = rtrim($docComment, "\n");
 
@@ -253,14 +223,14 @@ final class DataProvider
             return null;
         }
 
-        $offset            = strlen($matches[0][0]) + (int) $matches[0][1];
+        $offset            = strlen($matches[0][0]) + $matches[0][1];
         $annotationContent = substr($docComment, $offset);
         $data              = [];
 
         foreach (explode("\n", $annotationContent) as $candidateRow) {
             $candidateRow = trim($candidateRow);
 
-            if ($candidateRow === '' || $candidateRow[0] !== '[') {
+            if ($candidateRow[0] !== '[') {
                 break;
             }
 
@@ -268,7 +238,7 @@ final class DataProvider
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new InvalidDataProviderException(
-                    'The data set for the @testWith annotation cannot be parsed: ' . json_last_error_msg(),
+                    'The data set for the @testWith annotation cannot be parsed: ' . json_last_error_msg()
                 );
             }
 
@@ -277,7 +247,7 @@ final class DataProvider
 
         if (!$data) {
             throw new InvalidDataProviderException(
-                'The data set for the @testWith annotation cannot be parsed.',
+                'The data set for the @testWith annotation cannot be parsed.'
             );
         }
 
@@ -299,15 +269,15 @@ final class DataProvider
             $methodName,
             $location['file'],
             $location['line'],
-            Event\Code\TestDoxBuilder::fromClassNameAndMethodName(
+            Event\Code\TestDox::fromClassNameAndMethodName(
                 $className,
-                $methodName,
+                $methodName
             ),
-            MetadataRegistry::parser()->forClassAndMethod(
+            MetadataCollection::for(
                 $className,
-                $methodName,
+                $methodName
             ),
-            TestDataCollection::fromArray([]),
+            TestDataCollection::fromArray([])
         );
     }
 }
