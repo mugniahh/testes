@@ -139,6 +139,6 @@ try {
     header("Location: $spreadsheetUrl");
     exit();
 } catch (Exception $e) {
-    echo "❌ Gagal kirim: " . htmlspecialchars($e->getMessage());
+    echo "❌ Gagal kirim ke kirim spreadsheet: " . htmlspecialchars($e->getMessage());
 }
 ?>
